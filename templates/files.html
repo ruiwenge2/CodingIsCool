@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>My Files</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link href="/static/images/code.png" rel="icon">
+    <link href="/static/style.css" rel="stylesheet">
+
+    <style>
+      main {
+        text-align:center;
+      }
+      .file {
+        padding-left:30px;
+        width:98%;
+        height:50px;
+        text-align:left;
+      }
+      button {
+        background:white;
+        color:blue;
+        width:100px;
+        height:40px;
+        border:2px solid blue;
+        border-radius:5px;
+        cursor:pointer;
+        user-select:none;
+      }
+      main button {
+        margin-right:30px;
+        display:inline-block;
+        transition:all 0.3s ease-in-out;
+      }
+      button:hover {
+        background:blue;
+        color:white;
+      }
+      #new {
+        float:right;
+        margin-right:50px;
+        transition:all 0.3s ease-in-out;
+      }
+      .modal-content {
+        color:black;
+      }
+      #search {
+        width:300px;
+        height:30px;
+        font-size:1.25em;
+        border-radius:5px;
+        border:2px solid blue;
+        padding:5px;
+        float:right;
+        margin-right:50px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/files">My Files</a>
+      <a href="/help">Help</a>
+      <a href="/logout">Logout</a>
+    </nav><br><br><br>
+    <h1>My Files</h1>
+    <label>Sort by: </label><select id="sort" onchange="changeOrder()"><option>Newest first</option><option>Oldest first</option><option>A to Z</option><option>Z to A</option></select><br><br>
+    <input id="search" oninput="search()" autocomplete="off" placeholder="Search for a file..." spellcheck="false"><br><br><br><br>
+    <button onclick="location.href = '/create'" id="new">New File</button>
+    <br><br><br><br>
+    <hr style="border:1px solid blue">
+    <main></main>
+    <script src="/static/modal.js"></script>
+    <script>
+      document.getElementById("sort").value = "{{sort}}";
+      function changeOrder(){
+        var select = document.getElementById("sort");
+        var sort = select.value;
+        if(sort == "Newest first") location.search = "sort=new";
+        if(sort == "Oldest first") location.search = "sort=old";
+        if(sort == "A to Z") location.search = "sort=a-to-z";
+        if(sort == "Z to A") location.search = "sort=z-to-a";
+      }
+      function search() {
+        var input, filter, a, i, text, editbtn, viewbtn, downloadbtn, renamebtn, deletebtn, hr;
+        input = document.getElementById("search");
+        filter = input.value.toLowerCase();
+        div = document.querySelectorAll("main div");
+        text = document.querySelectorAll(".filename");
+        editbtn = document.querySelectorAll(".editbtn");
+        viewbtn = document.querySelectorAll(".viewbtn");
+        downloadbtn = document.querySelectorAll(".downloadbtn");
+        renamebtn = document.querySelectorAll(".renamebtn");
+        deletebtn = document.querySelectorAll(".deletebtn");
+        hr = document.querySelectorAll(".hr");
+        for (i = 0; i < text.length; i++) {
+            txtValue = text[i].textContent || text[i].innerText;
+            if (txtValue.toLowerCase().indexOf(filter) > -1) {
+              div[i].style.display = "block";
+              editbtn[i].style.display = "inline-block";
+              viewbtn[i].style.display = "inline-block";
+              downloadbtn[i].style.display = "inline-block";
+              renamebtn[i].style.display = "inline-block";
+              deletebtn[i].style.display = "inline-block";
+              hr[i].style.display = "block";
+            } else {
+              div[i].style.display = "none";
+              editbtn[i].style.display = "none";
+              viewbtn[i].style.display = "none";
+              downloadbtn[i].style.display = "none";
+              renamebtn[i].style.display = "none";
+              deletebtn[i].style.display = "none";
+              hr[i].style.display = "none";
+            }
+        }
+      }
+      var main = document.querySelector("main");
+      var allfiles = "{{files}}";
+      allfiles = allfiles.split(" ")
+      allfiles.forEach(function(name){
+        if(allfiles[0] == ""){
+          main.innerHTML = "<h1>You don't have any files yet. Try creating one!</h1>";
+          return;
+        }
+        var div = document.createElement("div");
+        main.appendChild(div);
+        div.innerHTML = `<p class="filename">${name}</p>`;
+        div.className = "file";
+        var btn1 = document.createElement("button");
+        main.appendChild(btn1);
+        btn1.innerHTML = "Edit";
+        btn1.onclick = function(){ // edit file
+          window.open("/{{username}}/" + name + "/edit");
+        };
+        btn1.className = "editbtn";
+        var btn2 = document.createElement("button");
+        main.appendChild(btn2);
+        btn2.innerHTML = "View";
+        btn2.onclick = function(){ // view file
+          window.open("/{{username}}/" + name);
+        };
+        btn2.className = "viewbtn";
+        var btn3 = document.createElement("button");
+        main.appendChild(btn3);
+        btn3.innerHTML = "Download";
+        btn3.onclick = function(){
+          location.href = "/{{username}}/" + name + "/download"
+        }
+        btn3.className = "downloadbtn";
+        var btn4 = document.createElement("button");
+        main.appendChild(btn4);
+        btn4.innerHTML = "Rename";
+        btn4.onclick = function(){
+          promptmodal("Rename file", `Enter a new name for <span style="color:blue">${name}</span> (do not include the file type):`, "Rename", true);
+          filetype = name.split(".")[1]
+          okbtn.onclick = function(){ // rename file
+            letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+            cap_letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+            numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            allchars = letters.concat(cap_letters,  numbers, ["-", "_"]);
+            validName = true;
+            for(var i of value){
+              if(!allchars.includes(i)){
+                alertmodal("", "The name can only contain alphanumeric characters, dashes, and underscores.");
+                validName = false;
+              }
+            }
+            if(validName == true){
+              if(value.length <= 50){
+                value = value + "." + filetype;
+                if(filetype == "java"){
+                  value = value[0].toUpperCase() + value.slice(1);
+                }
+                if(!allfiles.includes(value)){
+                  if(value != ""){
+                    fetch("/{{username}}/" + name + "/rename", {
+                      method:"POST",
+                      headers: {
+                        "Content-Type": "application/json"
+                      },
+                      body:JSON.stringify({
+                        newname:value
+                      })
+                    }).then(response => {
+                      location.reload();
+                    });
+                  }
+                } else{
+                  alertmodal("", "This file already exists.");
+                }
+              } else{
+                alertmodal("", "The name cannot have more than 50 characters.");
+              }
+            }
+          };
+        };
+        btn4.className = "renamebtn";
+        var btn5 = document.createElement("button");
+        main.appendChild(btn5);
+        btn5.innerHTML = "Delete";
+        btn5.onclick = function(){ // delete file
+          confirmmodal("Delete file", `Are you sure you want to delete <span style="color:blue">${name}</span>?`, "Delete", true);
+          okbtn.onclick = function(){
+            fetch("/{{username}}/" + name + "/delete", {
+              method:"POST"
+            }).then(response => {
+              location.reload();
+            });
+          };
+        };
+        btn5.className = "deletebtn";
+        var hr = document.createElement("hr");
+        hr.style.border = "1px solid blue";
+        main.appendChild(hr);
+        hr.className = "hr";
+      });
+      function reload(){
+        setTimeout(() => {
+          location.reload();
+        }, 500);
+      }
+    </script>
+  </body>
+</html>

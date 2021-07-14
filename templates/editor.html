@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>{{filename}}</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+<link href="/static/images/code.png" rel="icon">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ext-language_tools.js"></script>
+<script src="/static/contextmenu.js"></script>
+<style>
+    body {
+      overflow:hidden;
+      font-family:"Roboto";
+      margin:0;
+    }
+    #editor { 
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height:100%;
+      width:55%;
+    }
+    iframe {
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width:45%;
+      float:right;
+    }
+    {% if mode == "python" %}
+    #top {
+      top:10px;
+      float:right;
+      z-index:1000;
+      position:absolute;
+      left:76%;
+    }
+    {% else %}
+    #top {
+      top:10px;
+      float:right;
+      z-index:1000;
+      position:absolute;
+      left:83%;
+    }
+    {% endif %}
+    .btn {
+      background:white;
+      color:blue;
+      height:30px;
+      border:1px solid blue;
+      border-radius:5px;
+      cursor:pointer;
+      user-select:none;
+      transition:all 0.3s ease-in-out;
+      font-size:18px;
+    }
+    .btn:hover {
+      background:blue;
+      color:white;
+    }
+</style>
+</head>
+<body>
+
+<div id="editor">{{contents}}</div>
+<div class="context-menu" style="display:none">
+  <br><ul>
+    <li onclick="save()">Save Changes</li>
+    <li onclick="window.open('/{{username}}/{{filename}}')">Open in new tab</li>
+    {% if mode == "python" %}
+    <li onclick="run()">Run Code</li>
+    {% endif %}
+</ul><br>
+</div>
+<iframe src="/{{username}}/{{filename}}" frameborder="0"></iframe>
+<div id="top">
+  <button class="btn" id="savebtn" onclick="save()">Saved</button>
+  <button onclick="window.open('/{{username}}/{{filename}}')" class="btn">Open in new tab</button>
+  {% if mode == "python" %}
+  <button class="btn" onclick="run()">Run Code</button>
+  {% endif %}
+</div>
+<script>
+    var editor = ace.edit("editor");
+    editor.setTheme("ace/theme/gruvbox");
+    editor.session.setMode("ace/mode/{{mode}}");
+    editor.setFontSize("16px");
+    editor.setOption("wrap", true);
+    editor.setOptions({
+      enableLiveAutocompletion:true
+    });
+    var height = window.innerHeight;
+    document.querySelector("iframe").style.height = String(height) + "px";
+    var orig = editor.getValue();
+    var content = editor.getValue();
+    var element = document.getElementById("editor");
+    element.addEventListener("keyup", () => {
+      if(editor.getValue() == orig){
+        document.body.removeAttribute("onbeforeunload");
+        return;
+      }
+      if(editor.getValue() != content){
+        change("Save");
+        document.body.setAttribute("onbeforeunload", "return ''");
+      }
+    });
+    element.addEventListener("keydown", event => {
+      if(event.key === "s" && (event.metaKey || event.ctrlKey)){
+        event.preventDefault();
+        save();
+      }
+      {% if mode == "python" %}
+      else if(event.key === "Enter" && (event.metaKey || event.ctrlKey)){
+        run();
+      }
+      {% endif %}
+    });
+
+    function change(text){
+      document.getElementById("savebtn").innerHTML = text;
+    }
+    function run(){
+      content = editor.getValue();
+      change("Saving...")
+      fetch("/{{username}}/{{filename}}/save", {
+        method: "POST",
+        headers: {
+          "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+          contents: content
+        })
+      }).then(response => {
+        change("Saved");
+        document.querySelector("iframe").src = "/{{username}}/{{filename}}";
+        document.body.removeAttribute("onbeforeunload");
+        window.open("/{{username}}/{{filename}}/run")
+      });
+    }
+
+    function save(){
+      content = editor.getValue();
+      change("Saving...")
+      fetch("/{{username}}/{{filename}}/save", {
+        method: "POST",
+        headers: {
+          "Content-Type":"application/json"
+        },
+        body: JSON.stringify({
+          contents: content
+        })
+      }).then(response => {
+        change("Saved");
+        document.querySelector("iframe").src = "/{{username}}/{{filename}}";
+        document.body.removeAttribute("onbeforeunload");
+      });
+    }
+</script>
+</body>
+</html>

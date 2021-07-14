@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{message}}</title>
+    <link href="/static/style.css" rel="stylesheet">
+    <link href="/static/images/code.png" rel="icon">
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+    {% if loggedIn == "true" %}
+      <a href="/cards">My Cards</a>
+      <a href="/help">Help</a>
+      <a href="/logout">Logout</a>
+    </nav>
+    {% else %}
+      <a href="/help">Help</a>
+      <a href="/login">Login</a>
+      <a href="/signup">Sign Up</a>
+    {% endif %}
+    </nav><br><br><br>
+    <h3 style="color:red">{{message}}</h3>
+  </body>
+</html>

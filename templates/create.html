@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Create New File - CodingIsCool</title>
+    <link href="/static/style.css" rel="stylesheet">
+    <link href="/static/home.css" rel="stylesheet">
+    <link href="/static/images/code.png" rel="icon">
+    <style>
+      .modal-content {
+        color:black;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/files">My Files</a>
+      <a href="/help">Help</a>
+      <a href="/logout">Logout</a>
+    </nav><br><br><br>
+    <h1>Create New File</h1><br><br>
+    <div style="border:2px solid white">
+      <h3>Choose a language:</h3>
+      <select></select>
+      <h3>Enter file name:</h3>
+      <input id="filename" placeholder="File name" autocomplete="off" style="font-size:15px" autofocus><br><br><br>
+      <button onclick="newfile()" class="btn">Create</button><br><br>
+    </div>
+    <script>
+      document.addEventListener("keydown", e => {
+        if(e.key == "Enter") newfile();
+      });
+
+      var languages = {
+        "HTML":"html",
+        "CSS":"css",
+        "JavaScript":"js",
+        "Python":"py",
+        "Java":"java",
+        "C":"c",
+        "C++":"cpp",
+        "C#":"cs",
+        "JSON":"json",
+        "SVG":"svg",
+        "CSV":"csv",
+        "Plain Text":"txt"
+      }
+
+      for(var language of Object.keys(languages)){
+        var option = document.createElement("option");
+        option.innerHTML = language;
+        document.querySelector("select").appendChild(option);
+      }
+
+      function newfile(){
+        var files = "{{files}}";
+        files = files.split(" ");
+        var language = document.querySelector("select").value;
+        var ending = languages[language];
+        var name = document.querySelector("input").value;
+        if(!name) return;
+        letters = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+        cap_letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+        numbers = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+        allchars = letters.concat(cap_letters,  numbers, ["-", "_"]);
+        for(var i of name){
+          if(!allchars.includes(i)){
+            alertmodal("", "The name can only contain alphanumeric characters, dashes, and underscores.");
+            return;
+          }
+        }
+        if(ending == "java"){
+          name = name[0].toUpperCase() + name.slice(1);
+        }
+        total = `${name}.${ending}`;
+        if(files.includes(total)){
+          alertmodal("", "This file already exists.");
+          return;
+        }
+        fetch("/createnewfile", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            "user":"{{username}}",
+            "newfilename":name,
+            "newfiletype":ending
+          })
+        }).then(response => {
+          window.open("/{{username}}/" + total + "/edit");
+          location.href = "/files";
+        });
+      }
+    </script>
+    <script src="/static/modal.js"></script>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Home - CodingIsCool</title>
+    <link href="/static/style.css" rel="stylesheet">
+    <link href="/static/home.css" rel="stylesheet">
+    <link href="/static/images/code.png" rel="icon">
+    <style>
+      .modal-content {
+        color:black;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/files">My Files</a>
+      <a href="/help">Help</a>
+      <a href="/logout">Logout</a>
+    </nav><br><br><br>
+    <h1>Welcome, {{username}}!</h1><br>
+    <h3>CodingIsCool is a coding platform that allows you to create websites with HTML and also supports languages.</h3><br>
+    <button onclick="location.href = '/create'" class="btn">Create new file</button><br><br><br>
+    {% if recentlength > 0 %}
+    <div style="width:40%; border:2px solid white; margin-left:30%; margin-right:30%">
+      <h2>Recent Files</h2>
+      {% for i in recent %}
+      <a href="/{{username}}/{{i}}/edit" target="_blank">{{i}}</a><br><br>
+      {% endfor %}<br>
+    </div><br><br>
+    {% endif %}
+    <a href="/files">See all of my files</a><br><br><br>
+    <a>Need some help? Go to the</a> <a href="/help">help page</a>.
+    <script src="/static/modal.js"></script>
+  </body>
+</html>

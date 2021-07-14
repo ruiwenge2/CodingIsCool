@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+	<head>
+    <link href="/static/images/code.png" rel="icon">
+		<title>Python Runner - CodingIsCool</title>
+		<style>
+			body {
+				margin: 0;
+				width: 100vw;
+				height: 100vh;
+				overflow:hidden;
+			}
+			#textarea {
+				width: 100vw;
+				height: 100vh;
+				margin: 0;
+				color: white;
+				background: black;
+				font-size: 18px;
+				padding:0.5em;
+				border:none;
+        outline:none;
+			}
+			button {
+				position:absolute;
+				top: 2vh;
+				right: 2vw;
+				z-index: 100;
+			}
+      #code {
+        display:none;
+      }
+		</style>
+  <script src="https://cdn.jsdelivr.net/gh/pythonpad/brython-runner/lib/brython-runner.bundle.js"></script>
+	</head>
+	<body>
+    <div id="code">{{code}}</div>
+		<textarea id="textarea" readonly></textarea>
+<script>
+const textarea = document.getElementById("textarea");
+const runner = new BrythonRunner({
+  stdout: {
+    write(content) {
+      textarea.innerHTML += content;
+      textarea.scrollTop = textarea.scrollHeight;
+    },
+    flush() {}
+  },
+  stderr: {
+    write(content) {
+      textarea.innerHTML += content;
+      textarea.scrollTop = textarea.scrollHeight;
+    },
+    flush() {}
+  },
+  stdin: {
+    async readline() {
+      var userInput = prompt();
+      textarea.innerHTML += "\n";
+      return userInput;
+    },
+    flush() {}
+  }
+});
+var code = document.getElementById("code").innerText;
+runner.runCode(code);
+</script>
+	</body>
+</html>

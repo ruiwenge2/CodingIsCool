@@ -1,0 +1,25 @@
+<DOCTYPE html>
+<html>
+  <head>
+    <title>Login - CodingIsCool</title>
+    <link href="/static/style.css" rel="stylesheet">
+    <link href="/static/loginsignup.css" rel="stylesheet">
+    <link href="/static/images/code.png" rel="icon">
+  </head>
+  <body>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/help">Help</a>
+      <a href="/login">Login</a>
+      <a href="/signup">Sign Up</a>
+    </nav><br>
+    <h1>Login</h1><br>
+    <form action="/loginsubmit" method="post">
+      <h3>Username: <h3><input name="username" required><br><br>
+      <h3>Password: </h3><input type="password" name="password" required><br><br>
+      <input type="submit" value="Login">
+      <br><br><br>
+    </form>
+    <p>Don't have an account? <a href="/signup">Sign Up</a></p>
+  </body>
+</html>
